@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+
+    <head>
+        
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=1024" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <title>Kauzo</title>
+        
+        <meta name="description" content="Kauzo is a webapp for donating to charity causes." />
+        <meta name="author" content="Creative Cells (C) Kamen Kanchev" />
+    
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+
+<!--
+        <link rel="shortcut icon" href="favicon.png" />
+        <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+-->
+
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+            
+        <link href="css/slider.css" rel="stylesheet" />
+        <link href="css/kauzo-demo.css" rel="stylesheet" />
+        
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone.js"></script>
+        
+        <script src="js/libs/backbone.localStorage.js"></script>
+        <script src="js/libs/bootstrap-slider.js"></script>
+        
+    </head>
+
+    <body class="impress-not-supported">
+
+        <div class="fallback-message">
+            <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+            <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+        </div>
+        
+        <div id="impress">
+            
+            <div id="demo" class="step slide" data-x="1000" data-y="-3500">
+                <div id="appRoot" class="container-fluid">
+                    
+                    <div class="span4">
+                        <!--Sidebar content-->
+                        <div id="generateTranasction">
+                            <br/>
+                            <h1>Генерирай транзацкия/покупка:</h>
+                            <form class="form-inline">
+                                <input id="cashAmount" type="text" pattern="[0-9]+" maxlength="2" placeholder="Въведи сума">
+                                <button class="btn">Генерирай!</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="span6">
+                        <!--App content-->
+                        <ul class="nav nav-pills">
+                            <li class="active">
+                                <a href="#causesView" data-toggle="tab">Каузи</a>
+                            </li>
+                            <li>
+                                <a href="#profileView" data-toggle="tab">Профил</a>
+                            </li>
+                        </ul>
+                        
+                        <div id="appContainer" class="tab-content">
+                        <div class="tab-pane fade active in" id="causesView">
+                            <div class="carousel slide" id="causesCarousel">
+                                <div class="carousel-inner">
+                                    
+                                    <script type="text/template" id="causes-template">
+                                        <% var i = 0; %>
+                                        <% _.each(causes, function(cause) { %>
+                                            
+                                            <div class="<%= i==0?'active ':'' %>item">
+                                                <img src="<%- cause.img %>" />
+                                                <div class="carousel-caption">
+                                                    <h4><%- cause.name %></h4>
+                                                    <p>
+                                                        <%- cause.description %>
+                                                        <button cause-id=<%- cause.id %> class="btn btn-large btn-success vote" href="#">Гласувай</button>
+                                                        <img src="img/facebook.png">
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <% i++ %>
+                                        <% }) %>
+                                    </script>
+                                    
+                                </div>
+                                <!-- Carousel nav -->
+                                <a class="carousel-control left" href="#causesCarousel" data-slide="prev">&lsaquo;</a>
+                                <a class="carousel-control right" href="#causesCarousel" data-slide="next">&rsaquo;</a>                              
+                                
+                            </div>
+                            
+                            <div id="causeModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    <h3 id="causeModalLabel">Галсувай!</h3>
+                                </div>
+                                <div class="modal-body">
+                                    <script type="text/template" id="causes-modal-template">
+                                        <p>Гласувай за <strong><%- name %></strong></p>
+                                        <input type="text" class="slider" style="width: 200px;" value="" data-slider-max="<%- max %>" data-slider-value="<%- value %>">
+                                        <i class="icon-star"></i>
+                                    </script>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn" data-dismiss="modal" aria-hidden="true">Назад</button>
+                                    <button class="btn btn-success voted">Гласувай!</button>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="tab-pane" id="profileView">
+                            <div class="row-fluid" id="personal">
+                                <script type="text/template" id="personal-template">
+                                    <div class="span4">
+                                        <img class="thumbnail" style="width: 260px; height: 180px;" src="<%- img %>">
+                                    </div>
+                                    <div class="span6 offset2">
+                                        <h1><%- name %></h1>
+                                        <h2>В наличност:<span><%- cash %></span><i class="icon-star"></i></h2>
+                                        <h2>Общо спечелени:<span><%- total %></span><i class="icon-star"></i></h2>
+                                        <div id="badges">
+                                            <h1>Значки:</h1>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </script>
+                            </div>
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a href="#votes" data-toggle="tab">Гласувания</a>
+                                </li>
+                                <li>
+                                    <a href="#transactions" data-toggle="tab">Транзакции</a>
+                                </li>
+                                <li class="cards">
+                                    <a href="#cards" data-toggle="tab">Карти</a>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content" id="profileTabs">
+                                <ul class="tab-pane fade active in" id="votes">
+
+                                    <script type="text/template" id="votes-template">
+                                        
+                                        <li class="row-fluid">
+                                            <h1 class="span4">Кауза:</h1>
+                                            <h1 class="span1">Тежест:</h1>
+                                            <h1 class="span4">Дата:</h1>
+                                        </li>
+                                        <% _.each(votes, function(vote) { %>
+                                            <li class="row-fluid">
+                                                <h1 class="span4"><%- vote.get('name') %></h1>
+                                                <h1 class="span1"><%- vote.get('amount') %><i class="icon-star"></i></h1>
+                                                <h1 class="span4"><%- vote.get('date') %></h1>
+                                            </li>
+                                        <% }) %>
+                                        
+                                    </script>
+                                    
+                                </ul>
+                                
+                                <ul class="tab-pane" id="transactions">
+                                    
+                                    <script type="text/template" id="transactions-template">
+                                        
+                                        <li class="row-fluid">
+                                            <h1 class="span2">Сделка:</h1>
+                                            <h1 class="span1">Награда:</h1>
+                                            <h1 class="span4">Дата:</h1>
+                                        </li>
+                                        <% _.each(transactions, function (transaction){ %>
+                                            <li class="row-fluid" id="transaction<%- transaction.id %>">
+                                                <h1 class="span2"><%- transaction.get('amount') %></h1>
+                                                <h1 class="span1"><%- transaction.get('stars') %><i class="icon-star"></i></h1>
+                                                <h1 class="span4"><%- transaction.get('date') %></h1>
+                                            </li>
+                                        <% }) %>
+                                        
+                                    </script>
+                                    
+                                </ul>
+                                
+                                <ul class="tab-pane" id="cards">
+                                    
+                                    <button class="btn btn-success" href="#" disabled><i class="icon-plus"></i>Добави карта</button>
+                                        
+                                    <li class="row-fluid">
+                                        <h1 class="span2">Тип</h1>
+                                        <h1 class="span4">Номер</h1>
+                                    </li>
+                                    <li class="row-fluid">
+                                        <h1 class="span2">MasterCard</h1>
+                                        <h1 class="span4">XXXX-XXXX-XXXX-1234</h1>
+                                        <span class="span1">
+                                            <button class="btn btn-mini btn-danger" href="#" disabled><i class="icon-remove-circle"></i></button>
+                                        </span>
+                                    </li>
+                                    <li class="row-fluid">
+                                        <h1 class="span2">Маестро</h1>
+                                        <h1 class="span4">XXXX-XXXX-XXXX-6789</h1>
+                                        <span class="span1">
+                                            <button class="btn btn-mini btn-danger" href="#" disabled><i class="icon-remove-circle"></i></button>
+                                        </span>
+                                    </li>
+                                    <li class="row-fluid">
+                                        <h1 class="span2">Visa Silver</h1>
+                                        <h1 class="span4">XXXX-XXXX-XXXX-5678</h1>
+                                        <span class="span1">
+                                            <button class="btn btn-mini btn-danger" href="#" disabled><i class="icon-remove-circle"></i></button>
+                                        </span>
+                                    </li>
+                                </ul>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    </div>
+                
+                </div>
+                
+            </div>            
+            
+        </div>
+        
+        <!--
+        <div class="hint">
+            <p>Use a spacebar or arrow keys to navigate</p>
+        </div>
+        -->
+        
+        <script src="js/app/app.js"></script>
+        <script src="js/libs/impress.js"></script>
+        <script>//impress().init();</script>
+    </body>
+
+</html>
